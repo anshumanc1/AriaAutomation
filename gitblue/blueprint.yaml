@@ -1,0 +1,109 @@
+formatVersion: 1
+inputs:
+  Data_center:
+    type: string
+    title: Select Datacenter
+    oneOf:
+      - title: Dallas
+        const: drvcenter
+      - title: Houston
+        const: dcvcenter
+  Hostname:
+    type: string
+    title: Enter Hostname
+  Size:
+    type: string
+    title: Select VM Size
+    description: Medium-Medium-Workload (4CPU 8GB RAM)      Medium-Large Workload (4CPU 16GB RAM)       Medium-Extra-Large Workload (4CPU 32GB RAM)    Large-Large Workload (8CPU 16GB RAM)      Large-Extra-Large Workload (8CPU 32GB RAM)
+    enum:
+      - Medium-Medium-Workload
+      - Medium-Large Workload
+      - Medium-Extra-Large Workload
+      - Large-Large Workload
+      - Large-Extra-Large Workload
+  Application:
+    type: string
+    title: Application
+    enum:
+      - Cactus Production
+      - Cactus Dev
+      - Custom Apps
+      - EDI
+      - Elements Production
+      - Elements Test
+      - GoAnywhere Production
+      - GoAnywhere Production DMZ
+      - GoAnywhere Test
+      - GoAnywhere Test DMZ
+      - HIPAA Servers
+      - Informatica Production
+      - Informatica Dev
+      - JIVA Production
+      - JIVA Shared
+      - JIVA UAT
+      - Laserfiche
+      - Laserfiche Data
+      - NetworX Production
+      - "NetworX\tStage"
+      - NetworX Test
+      - Optum PPS Production
+      - Optum PPS Stage
+      - Optum PPS Test
+      - QNXT Production
+      - QNXT Stage
+      - QNXT Test
+      - SharePoint Production
+      - SharePoint Test
+      - Tools
+      - Web Servers
+      - RPA OCR
+  Type:
+    type: string
+    title: Type of Server
+    description: Choose Production Type
+    enum:
+      - Dev
+      - Production
+      - Stage
+      - Test
+      - UAT
+  Tier:
+    type: string
+    title: Tier
+    description: Choose Tier Level
+    enum:
+      - Tier 1
+      - Tier 2
+      - Tier 3
+      - Tier 4
+resources:
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    properties:
+      tags:
+        - key: Backup Folder
+          value: ${input.Application}
+        - key: Service Level
+          value: ${input.Tier}
+        - key: Server Type
+          value: ${input.Type}
+      image: Server 2022 Standard
+      os: Windows
+      vcenterName: ${input.Data_center}
+      flavor: ${input.Size}
+      name: ${input.Hostname}
+      folderName: ${"IT Application Support Team/" + (input.Application)}
+      customizationSpec: Windows Server 2022 Domain Joined
+      networks:
+        - network: ${resource.Cloud_vSphere_Network_1.id}
+      OneFuse_IpamPolicy_Nic0: onefuse:IP_Assignment
+      OneFuse_VraNetworkSelectionTryCountNic0: 3
+      constraints:
+        - tag: datacenter:${input.Data_center}
+        - tag: ostype:windows
+  Cloud_vSphere_Network_1:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing
+      constraints:
+        - tag: ${"Backup Folder:" + (input.Application)}
