@@ -1,0 +1,10 @@
+formatVersion: 1
+inputs: {}
+resources:
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    constraints:
+      - tag: storage:vm
+    properties:
+      image: Ansh
+      flavor: small
